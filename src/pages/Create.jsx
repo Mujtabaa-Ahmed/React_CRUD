@@ -1,55 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../style/Create.css';
 
 const Create = () => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    status: 'active'
+    name: '',
+    price: '',
+    description: ''
   });
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const API_URL = 'https://arsalan.fronxsolutions.com/admin/students';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    // Clear error when user types
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: null
-      });
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    return newErrors;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateForm();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    setError('');
+
+    if (!formData.name || !formData.price) {
+      setError('Name and price are required');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      // Replace with your actual API call
-      const response = await fetch('https://api.example.com/items', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,115 +37,81 @@ const Create = () => {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to create item');
+      if (!response.ok) throw new Error('Failed to create product');
 
-      // Show success message and redirect
-      alert('Item created successfully!');
-      navigate('/view');
-    } catch (error) {
-      console.error('Error creating item:', error);
-      alert('An error occurred while creating the item');
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="create-container">
-      <div className="create-header">
-        <h1>Create New Item</h1>
-        <p>Fill out the form below to add a new item to your collection</p>
-      </div>
+    <div className="max-w-2xl mx-auto p-6 mt-10 bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Add New Product</h1>
 
-      <form onSubmit={handleSubmit} className="create-form">
-        <div className="form-group">
-          <label htmlFor="title">Title *</label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
           <input
             type="text"
-            id="title"
-            name="title"
-            value={formData.title}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            className={errors.title ? 'error' : ''}
-            placeholder="Enter item title"
+            placeholder="Enter product name"
+            required
+            className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.title && <span className="error-message">{errors.title}</span>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description">Description *</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="Enter price"
+            step="0.01"
+            min="0"
+            required
+            className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea
-            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className={errors.description ? 'error' : ''}
+            placeholder="Enter product description"
             rows="4"
-            placeholder="Enter detailed description"
+            className="w-full border border-gray-300 px-4 py-2 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.description && <span className="error-message">{errors.description}</span>}
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="category">Category *</label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className={errors.category ? 'error' : ''}
-            >
-              <option value="">Select a category</option>
-              <option value="technology">Technology</option>
-              <option value="books">Books</option>
-              <option value="clothing">Clothing</option>
-              <option value="other">Other</option>
-            </select>
-            {errors.category && <span className="error-message">{errors.category}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>Status</label>
-            <div className="radio-group">
-              <label>
-                <input
-                  type="radio"
-                  name="status"
-                  value="active"
-                  checked={formData.status === 'active'}
-                  onChange={handleChange}
-                />
-                Active
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="status"
-                  value="inactive"
-                  checked={formData.status === 'inactive'}
-                  onChange={handleChange}
-                />
-                Inactive
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-actions">
+        <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="btn secondary"
+            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="btn primary"
             disabled={isSubmitting}
+            className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isSubmitting ? 'Creating...' : 'Create Item'}
+            {isSubmitting ? 'Creating...' : 'Create Product'}
           </button>
         </div>
       </form>
