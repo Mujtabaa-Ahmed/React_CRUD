@@ -13,7 +13,7 @@ const RouteTitleManager = () => {
         document.title = 'Create Item';
         break;
       default:
-        document.title = 'My App';
+        document.title = 'View Item';
         break;
     }
   }, [location]);

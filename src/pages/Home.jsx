@@ -8,11 +8,20 @@ const Home = () => {
       <section className="flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-4 py-12">
         <div className="md:w-1/2 mb-10 md:mb-0">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Welcome to Your CRUD Application
+            Welcome to my CRUD Application
           </h1>
           <p className="text-lg text-gray-600 mb-6">
-            Manage your data efficiently with our powerful CRUD operations.
+            Hi, my name is{' '}
+            <a
+              href="https://www.linkedin.com/in/ahmed-mujtaba-dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Ahmed Mujtaba
+            </a>. This is my first CRUD application in React.js.
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               to="/create"
