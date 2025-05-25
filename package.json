@@ -1,5 +1,5 @@
 {
-  "homepage": "https://mujtabaa-ahmed.github.io/React_CRUD>",
+  "homepage": "https://mujtabaa-ahmed.github.io/React_CRUD/",
   "name": "react-crud",
   "private": true,
   "version": "0.0.0",
@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
