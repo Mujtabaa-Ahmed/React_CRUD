@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import '../style/View.css';
+import { Link } from 'react-router-dom';
+import { getProducts, deleteProduct } from '../service/productService';
 
 const View = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const API_URL = 'https://arsalan.fronxsolutions.com/';
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch products');
-        const data = await response.json();
+        const data = await getProducts();
         setProducts(data);
       } catch (err) {
-        setError(err.message);
+        setError('Failed to fetch products: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -28,58 +25,60 @@ const View = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        const response = await fetch(`${API_URL}${id}`, {
-          method: 'DELETE',
-        });
-        
-        if (!response.ok) throw new Error('Failed to delete product');
-        setProducts(products.filter(product => product.id !== id));
+        await deleteProduct(id);
+        setProducts(products.filter((product) => product.id !== id));
       } catch (err) {
-        setError(err.message);
+        setError('Failed to delete product: ' + err.message);
       }
     }
   };
 
-  if (loading) return <div className="loading">Loading products...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (loading) return <div className="text-center mt-10 text-gray-600">Loading products...</div>;
+  if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
 
   return (
-    <div className="view-container">
-      <div className="view-header">
-        <h1>Product Inventory</h1>
-        <Link to="/create" className="btn primary">
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Product Inventory</h1>
+        <Link
+          to="/create"
+          className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
           Add New Product
         </Link>
       </div>
 
       {products.length === 0 ? (
-        <div className="no-items">No products found</div>
+        <div className="text-center text-gray-500">No products found</div>
       ) : (
-        <div className="table-responsive">
-          <table className="products-table">
-            <thead>
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border border-gray-200 rounded shadow-sm">
+            <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Actions</th>
+                <th className="px-4 py-3 text-left">#</th>
+                <th className="px-4 py-3 text-left">Name</th>
+                <th className="px-4 py-3 text-left">Price</th>
+                <th className="px-4 py-3 text-left">Description</th>
+                <th className="px-4 py-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>{product.name}</td>
-                  <td>${product.price}</td>
-                  <td>{product.description}</td>
-                  <td className="actions">
-                    <Link to={`/edit/${product.id}`} className="btn action-btn edit">
+            <tbody className="divide-y divide-gray-100">
+              {products.map((product, index) => (
+                <tr key={product.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{index + 1}</td>
+                  <td className="px-4 py-2 font-medium">{product.name}</td>
+                  <td className="px-4 py-2">${product.price}</td>
+                  <td className="px-4 py-2 text-sm text-gray-600">{product.description}</td>
+                  <td className="px-4 py-2 flex space-x-2">
+                    <Link
+                      to={`/edit/${product.id}`}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                    >
                       Edit
                     </Link>
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="btn action-btn delete"
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
                     >
                       Delete
                     </button>

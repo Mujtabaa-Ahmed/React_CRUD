@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addProduct } from '../service/productService'; // ✅ import Firebase function
 
 const Create = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,6 @@ const Create = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const API_URL = 'https://arsalan.fronxsolutions.com/admin/students';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,19 +29,19 @@ const Create = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      // 🔁 Call Firebase service to add product
+      await addProduct({
+        name: formData.name,
+        price: parseFloat(formData.price), // ensure price is a number
+        description: formData.description
       });
 
-      if (!response.ok) throw new Error('Failed to create product');
-
-      navigate('/');
+      navigate('/create');
+      formData.name = '';
+      formData.price = '';
+      formData.description = '';
     } catch (err) {
-      setError(err.message);
+      setError('Failed to add product: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -65,7 +65,6 @@ const Create = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Enter product name"
             required
             className="w-full border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -78,7 +77,6 @@ const Create = () => {
             name="price"
             value={formData.price}
             onChange={handleChange}
-            placeholder="Enter price"
             step="0.01"
             min="0"
             required
@@ -92,7 +90,6 @@ const Create = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Enter product description"
             rows="4"
             className="w-full border border-gray-300 px-4 py-2 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
